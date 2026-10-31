@@ -12,18 +12,10 @@ export default function BookingForm() {
     agenda: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  }
 
   function getToday() {
     const today = new Date();
@@ -34,12 +26,64 @@ export default function BookingForm() {
     return `${year}-${month}-${day}`;
   }
 
+  function validateForm() {
+    const newErrors = {};
+
+    if (!form.fullName.trim()) {
+      newErrors.fullName = "Please enter your full name.";
+    }
+
+    if (!form.email.trim()) {
+      newErrors.email = "Please enter your email address.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    if (!form.date) {
+      newErrors.date = "Please select a preferred date.";
+    } else if (form.date < getToday()) {
+      newErrors.date = "Please select today or a future date.";
+    }
+
+    if (!form.time) {
+      newErrors.time = "Please select a preferred time.";
+    }
+
+    if (!form.agenda.trim()) {
+      newErrors.agenda = "Please enter your meeting agenda.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+
+    setErrors((previous) => ({
+      ...previous,
+      [name]: "",
+    }));
+
+    setMessage("");
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setLoading(true);
     setMessage("");
     setSuccess(false);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const response = await fetch("/api/bookings", {
@@ -66,6 +110,8 @@ export default function BookingForm() {
         time: "",
         agenda: "",
       });
+
+      setErrors({});
     } catch (error) {
       setSuccess(false);
       setMessage(error.message || "Something went wrong. Please try again.");
@@ -74,8 +120,20 @@ export default function BookingForm() {
     }
   }
 
+  function fieldClass(name) {
+    return errors[name] ? "booking-input booking-input-error" : "booking-input";
+  }
+
+  function errorMessage(name) {
+    return errors[name] ? (
+      <p className="booking-field-error" role="alert">
+        {errors[name]}
+      </p>
+    ) : null;
+  }
+
   return (
-    <form className="booking-form" onSubmit={handleSubmit}>
+    <form className="booking-form" onSubmit={handleSubmit} noValidate>
       <div className="booking-field">
         <label htmlFor="fullName">Full Name</label>
         <input
@@ -85,8 +143,11 @@ export default function BookingForm() {
           placeholder="Enter your full name"
           value={form.fullName}
           onChange={handleChange}
-          required
+          className={fieldClass("fullName")}
+          aria-invalid={Boolean(errors.fullName)}
+          aria-describedby={errors.fullName ? "fullName-error" : undefined}
         />
+        {errorMessage("fullName")}
       </div>
 
       <div className="booking-field">
@@ -98,8 +159,11 @@ export default function BookingForm() {
           placeholder="you@example.com"
           value={form.email}
           onChange={handleChange}
-          required
+          className={fieldClass("email")}
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? "email-error" : undefined}
         />
+        {errorMessage("email")}
       </div>
 
       <div className="booking-field">
@@ -111,8 +175,11 @@ export default function BookingForm() {
           min={getToday()}
           value={form.date}
           onChange={handleChange}
-          required
+          className={fieldClass("date")}
+          aria-invalid={Boolean(errors.date)}
+          aria-describedby={errors.date ? "date-error" : undefined}
         />
+        {errorMessage("date")}
       </div>
 
       <div className="booking-field">
@@ -123,8 +190,11 @@ export default function BookingForm() {
           type="time"
           value={form.time}
           onChange={handleChange}
-          required
+          className={fieldClass("time")}
+          aria-invalid={Boolean(errors.time)}
+          aria-describedby={errors.time ? "time-error" : undefined}
         />
+        {errorMessage("time")}
       </div>
 
       <div className="booking-field">
@@ -136,8 +206,11 @@ export default function BookingForm() {
           value={form.agenda}
           onChange={handleChange}
           rows={5}
-          required
+          className={fieldClass("agenda")}
+          aria-invalid={Boolean(errors.agenda)}
+          aria-describedby={errors.agenda ? "agenda-error" : undefined}
         />
+        {errorMessage("agenda")}
       </div>
 
       <button

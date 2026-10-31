@@ -1185,3 +1185,70 @@ footer a:hover {
 .project-list-section h2 {
   margin-bottom: 24px;
 }
+
+
+.booking-input-error {
+  border: 1px solid #ef4444 !important;
+}
+
+.booking-field-error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.booking-input:focus {
+  outline: none;
+}
+
+.booking-input-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+
+
+
+/* Password input with show/hide icon */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-container input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.password-input-container .password-toggle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 12px;
+  margin: auto 0;
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: none;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  color: #999;
+  cursor: pointer;
+}
+
+.password-input-container .password-toggle:hover {
+  background: transparent !important;
+  color: #cba56b;
+}

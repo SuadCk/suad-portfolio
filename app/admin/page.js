@@ -11,6 +11,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -61,15 +62,45 @@ export default function AdminLogin() {
           required
         />
 
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className="password-input-wrapper">
+  <label htmlFor="password">Password</label>
+
+  <div className="password-input-container">
+    <input
+      id="password"
+      type={showPassword ? "text" : "password"}
+      placeholder="Enter your password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+
+    <button
+  type="button"
+  className="password-toggle"
+  onClick={() => setShowPassword(!showPassword)}
+  aria-label={showPassword ? "Hide password" : "Show password"}
+>
+  {showPassword ? (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      strokeLinejoin="round">
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+      <path d="M9.9 5.2A10.8 10.8 0 0121 12a11 11 0 01-3 3.7" />
+      <path d="M6.2 6.2A11 11 0 003 12a11 11 0 0012 6.8" />
+    </svg>
+  ) : (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      strokeLinejoin="round">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )}
+</button>
+  </div>
+</div>
 
         {error && <p className="admin-login-error">{error}</p>}
 

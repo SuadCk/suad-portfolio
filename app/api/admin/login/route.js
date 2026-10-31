@@ -14,24 +14,41 @@ export async function POST(request) {
       );
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const encodedHash = process.env.ADMIN_PASSWORD_HASH_BASE64;
-
-    const passwordHash = encodedHash
-    ? Buffer.from(encodedHash, "base64").toString("utf8")
-    : "";
     const sessionSecret = process.env.ADMIN_SESSION_SECRET;
 
-    if (!adminEmail || !passwordHash || !sessionSecret) {
-      throw new Error("Admin environment variables are missing.");
+    if (!sessionSecret) {
+      throw new Error("Admin session secret is missing.");
     }
 
-    if (email.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) {
+    // Support two independent admin accounts
+    const admins = [
+      {
+        email: process.env.ADMIN_EMAIL,
+        encodedHash: process.env.ADMIN_PASSWORD_HASH_BASE64,
+      },
+      {
+        email: process.env.ADMIN2_EMAIL,
+        encodedHash: process.env.ADMIN2_PASSWORD_HASH_BASE64,
+      },
+    ].filter((admin) => admin.email && admin.encodedHash);
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const admin = admins.find(
+      (item) => item.email.trim().toLowerCase() === normalizedEmail
+    );
+
+    if (!admin) {
       return NextResponse.json(
         { success: false, message: "Invalid email or password." },
         { status: 401 }
       );
     }
+
+    const passwordHash = Buffer.from(
+      admin.encodedHash,
+      "base64"
+    ).toString("utf8");
 
     const passwordMatches = await bcrypt.compare(
       password,
@@ -49,7 +66,7 @@ export async function POST(request) {
 
     const token = await new SignJWT({
       role: "admin",
-      email: adminEmail,
+      email: admin.email,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
